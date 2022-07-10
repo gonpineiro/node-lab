@@ -3,11 +3,12 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
-const db = require("./db");
-const formRouter = require("./routes/form-router");
+const { APP_PORT } = process.env;
+
+const db = require("./src/db");
+const mongoRouter = require("./src/routes/mongo-routes");
 
 const app = express();
-const port = 3005;
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cors());
@@ -15,6 +16,6 @@ app.use(bodyParser.json({ limit: "50mb" }));
 
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-app.use("/api", formRouter);
+app.use("/api", mongoRouter);
 
-app.listen(port, () => console.log(`http//:localhost:${port}`));
+app.listen(APP_PORT, () => console.log(`http//:localhost:${APP_PORT}`));

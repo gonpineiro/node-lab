@@ -1,37 +1,30 @@
-const Form = require("../models/form-model");
+const dynamicSchema = require("../models/dynamic-model");
 
-createSchema = (req, res) => {
-    const body = req.body;
+const { getCollections, existCollection, addChat } = require('../db/collections');
 
-    if (!body) {
-        return res.status(400).json({
-            success: false,
-            error: "You must provide a form",
-        });
+createSchema = async ({ body }, res) => {
+    const exist = await existCollection(body.name)
+    if (!exist) {
+        dynamicSchema(body.name)
+        res.status(200).json('ok')
+    } else {
+        res.status(300).json('Ya existe el esquema')
     }
-
-    const form = new Form(body);
-
-    if (!form) {
-        return res.status(400).json({ success: false, error: err });
-    }
-
-    form
-        .save()
-        .then(() => {
-            return res.status(201).json({
-                success: true,
-                id: form._id,
-                message: "Form created!",
-            });
-        })
-        .catch((error) => {
-            return res.status(400).json({
-                error,
-                message: "Form not created!",
-            });
-        });
 };
+
+getCollectionsController = async (req, res) => {
+    res.status(200).json(await getCollections())
+}
+
+existCollectionController = async ({ body }, res) => {
+    res.status(200).json(await existCollection(body.collection))
+}
+
+addChatController = async ({ body }, res) => {
+    const { collection, contactId, chatId } = body
+    addChat(collection, contactId, chatId)
+    res.status(200).json('ok');
+}
 
 updateForm = async (req, res) => {
     const body = req.body;
@@ -112,4 +105,7 @@ getForms = async (req, res) => {
 
 module.exports = {
     createSchema,
+    getCollectionsController,
+    existCollectionController,
+    addChatController
 };
